@@ -71,16 +71,6 @@ body {
     color: #f0c040;
 }
 
-/* Responsive logo sizes */
-@media (max-width: 768px) {
-    .logo-icon-img {
-        height: 26px;
-    }
-    .logo-text {
-        font-size: 20px;
-    }
-}
-
 .header .badge {
     font-size: 0.55em;
     color: #d4a574;
@@ -630,188 +620,6 @@ body {
     box-shadow: 0 0 15px rgba(240, 192, 64, 0.2);
 }
 
-/* ============================================================
-   Responsive
-   ============================================================ */
-@media (max-width: 860px) {
-    .game-layout {
-        flex-direction: column;
-        align-items: center;
-    }
-    .panel {
-        width: 100%;
-        max-width: 500px;
-        flex-direction: row;
-        flex-wrap: wrap;
-    }
-    .panel .card { flex: 1; min-width: 200px; }
-}
-
-@media (max-width: 768px) {
-    :root {
-        --board-border-width: 3px;
-        --mobile-board-size: min(calc(100vw - 64px), 480px);
-        --mobile-square-size: calc((var(--mobile-board-size) - (var(--board-border-width) * 2)) / 8);
-    }
-
-    .header {
-        padding: 12px 10px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width: 100%;
-        gap: 10px;
-    }
-
-    .logo-container {
-        gap: 6px;
-        margin-bottom: 4px;
-    }
-    
-    .logo-text {
-        font-size: 1.3rem;
-    }
-
-    .auth-buttons {
-        position: relative;
-        right: auto;
-        top: auto;
-        transform: none;
-        gap: 8px;
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        width: 100%;
-        flex-wrap: wrap;
-    }
-
-    .welcome-msg {
-        display: none; /* Hide on very small screens to save space */
-    }
-
-    .game-layout {
-        width: 100%;
-        gap: 20px;
-        padding: 10px 8px 30px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .panel {
-        width: 100%;
-        max-width: var(--mobile-board-size);
-        order: 2; /* Put panels below board by default */
-        padding: 0 4px;
-    }
-
-    .board-container {
-        width: 100%;
-        max-width: 100%;
-        order: 1;
-    }
-
-    .board-outer {
-        width: fit-content;
-        max-width: 100%;
-        margin: 0 auto;
-    }
-
-    .chessboard {
-        width: var(--mobile-board-size);
-        height: var(--mobile-board-size);
-        border-width: var(--board-border-width);
-        grid-template-columns: repeat(8, var(--mobile-square-size));
-        grid-template-rows: repeat(8, var(--mobile-square-size));
-    }
-
-    .square {
-        width: 100%;
-        height: 100%;
-    }
-
-    .ranks {
-        padding-right: 4px;
-    }
-
-    .ranks span {
-        height: var(--mobile-square-size);
-        width: 16px;
-        font-size: 0.65rem;
-    }
-
-    .files {
-        padding-left: 20px;
-    }
-
-    .files span {
-        width: var(--mobile-square-size);
-        font-size: 0.65rem;
-    }
-
-    .piece {
-        width: 96%;
-        height: 96%;
-    }
-
-    .capture-ring {
-        width: 85%;
-        height: 85%;
-    }
-
-    .move-dot {
-        width: 25%;
-        height: 25%;
-    }
-
-    .clocks {
-        width: var(--mobile-board-size);
-        margin: 0 0 10px;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .clock {
-        padding: 6px 12px;
-        min-width: 0;
-        width: 100%;
-        justify-content: space-between;
-    }
-
-    .clock .time {
-        font-size: 0.95rem;
-    }
-
-    .clock .label {
-        font-size: 0.55rem;
-    }
-
-    .btn {
-        min-height: 42px;
-        font-size: 0.8rem;
-    }
-
-    /* Move history specific mobile tweaks */
-    .moves-list {
-        max-height: 200px;
-    }
-
-    .captured-img {
-        width: 22px;
-        height: 22px;
-    }
-
-    .logo-icon-img {
-        height: 32px;
-    }
-
-    .turn-badge {
-        width: var(--mobile-board-size);
-        padding: 6px 12px;
-        font-size: 0.8rem;
-    }
-}
-
 /* ================= CLOCKS ================= */
 
 .clocks {
@@ -869,6 +677,147 @@ body {
 /* Color hints */
 .clock.white .label { color: #ddd; }
 .clock.black .label { color: #aaa; }
+
+
+/* ============================================================
+   RESPONSIVE DESIGN (Unified & Optimized for Mobile)
+   ============================================================ */
+
+@media (max-width: 900px) {
+    /* Logo scaling */
+    .logo-icon-img { height: 26px; }
+    .logo-text { font-size: 20px; }
+
+    .header {
+        padding: 12px 10px;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .auth-buttons {
+        position: relative;
+        right: auto;
+        top: auto;
+        transform: none;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+    .welcome-msg { display: none; } /* Saves space on mobile */
+
+    /* Core Layout Flex Restructuring */
+    .game-layout {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+        padding: 10px;
+    }
+
+    /* 1. Prioritize the Board */
+    .board-container {
+        order: 1;
+        width: 100%;
+        max-width: 500px; 
+    }
+
+    /* Side-by-side Clocks */
+    .clocks {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 8px;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .clock {
+        padding: 8px 12px;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .clock .time { font-size: 1rem; }
+    .clock .label { font-size: 0.6rem; }
+
+    /* 2. Controls immediately under the board (3rd Panel HTML-wise) */
+    .game-layout > .panel:nth-child(3) {
+        order: 2;
+        width: 100%;
+        max-width: 500px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Move controls above the theme switcher in this panel */
+    .game-layout > .panel:nth-child(3) .card:nth-child(2) { order: 1; }
+    .game-layout > .panel:nth-child(3) .card:nth-child(1) { order: 2; }
+    .game-layout > .panel:nth-child(3) .card:nth-child(3) { order: 3; }
+
+    /* Restructure controls into a grid to save vertical space */
+    .game-layout > .panel:nth-child(3) .card:nth-child(2) > div:nth-child(2) {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+    
+    #resignBtn, .btn[onclick*="rulebookModal"] {
+        grid-column: span 2;
+    }
+
+    /* 3. Captured Pieces at the bottom (1st Panel HTML-wise) */
+    .game-layout > .panel:nth-child(1) {
+        order: 3;
+        width: 100%;
+        max-width: 500px;
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+    }
+    
+    .game-layout > .panel:nth-child(1) .card {
+        flex: 1;
+        min-width: 0;
+    }
+
+    /* Scaling the board for smaller screens */
+    :root {
+        --board-border-width: 3px;
+        --mobile-board-size: min(calc(100vw - 40px), 480px);
+        --mobile-square-size: calc((var(--mobile-board-size) - (var(--board-border-width) * 2)) / 8);
+    }
+
+    .board-outer {
+        width: fit-content;
+        margin: 0 auto;
+    }
+
+    .chessboard {
+        width: var(--mobile-board-size);
+        height: var(--mobile-board-size);
+        border-width: var(--board-border-width);
+        grid-template-columns: repeat(8, var(--mobile-square-size));
+        grid-template-rows: repeat(8, var(--mobile-square-size));
+    }
+
+    .square {
+        width: 100%;
+        height: 100%;
+    }
+
+    .ranks span { height: var(--mobile-square-size); width: 16px; font-size: 0.65rem; }
+    .files span { width: var(--mobile-square-size); font-size: 0.65rem; }
+    
+    .piece { width: 96%; height: 96%; }
+    .capture-ring { width: 85%; height: 85%; }
+    .move-dot { width: 25%; height: 25%; }
+
+    /* History height limit */
+    .moves-list { max-height: 250px; }
+}
+
 
 /* ================= THEME SWITCHER ================= */
 
