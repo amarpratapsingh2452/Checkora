@@ -229,10 +229,10 @@
 
             function updateMaterialUI(board) {
                 const { white, black } = calculateMaterial(board);
-
-              document.getElementById("whiteScore").innerText = white;
-
-              document.getElementById("blackScore").innerText = black;
+              const whiteScoreEl = document.getElementById("whiteScore");
+              const blackScoreEl = document.getElementById("blackScore");
+              if (whiteScoreEl) whiteScoreEl.innerText = white;
+              if (blackScoreEl) blackScoreEl.innerText = black;
             }
             
             function csrf() {
@@ -792,7 +792,9 @@
                     showStatus('Unable to reconnect. Please refresh.', true);
                 }
                 reconnecting = false;
-            }async function executeMove(fr, fc, tr, tc, promotionPiece, skipAnimation = false) {
+            }
+
+            async function executeMove(fr, fc, tr, tc, promotionPiece, skipAnimation = false) {
                 try {
                     const body = {
                         from_row: fr, from_col: fc,
@@ -804,51 +806,63 @@
                         if (data.valid) {
                             playSound(data);
                             if (!skipAnimation) await animateMove(fr, fc, tr, tc);
+                            
+                            // Critical state updates
                             board = parseBoard(data.board);
                             turn = data.current_turn;
                             lastMove = { from: [fr, fc], to: [tr, tc] };
-    
+                            whiteTime = data.white_time;
+                            blackTime = data.black_time;
+                            selected = null;
+                            hints = [];
+
+                            // Critical visual updates
                             if (gameMode === 'pvp' && autoFlip) {
                                 flipped = (turn === 'black');
                                 buildBoard();
-                            }
-                            whiteTime = data.white_time;
-                            blackTime = data.black_time;
-    
-                            selected = null;
-                            hints = [];
-                            updatePlayerNames(data);
-                            updateTurn();
-                            updateMoves(data.move_history);
-                            updateCaptured(data.captured_pieces);
-                            syncPieces();
-                            renderClocks();
-                            startTimer();
-                            updateMaterialUI(board);
-                        let a11yMsg = '';
-                        if (data.move_history && data.move_history.length > 0) {
-                            const lastMove = data.move_history[data.move_history.length - 1].notation;
-                            const playedColor = turn === 'white' ? 'Black' : 'White';
-                            a11yMsg = `${playedColor} played ${lastMove}. `;
-                        }
-
-                        const gameEnded = handleGameStatus(data.game_status, data.draw_reason);
-                        if (!gameEnded) {
-                            if (data.game_status === 'check') {
-                                applyCheckHighlight();
-                                const checkMsg = turn === 'white' ? 'White is in check!' : 'Black is in check!';
-                                showStatus(checkMsg, true);
-                                a11yMsg += checkMsg;
                             } else {
-                                highlightCheck();
-                                showStatus('', false);
+                                syncPieces();
                             }
-                            if (a11yMsg) announceMove(a11yMsg);
-                        }
 
-                        if (gameMode === 'ai' && turn !== playerColor && !gameOver) {
-                            requestAIMove();
-                        }
+                            // Non-critical UI updates batched for next frame
+                            requestAnimationFrame(() => {
+                                updatePlayerNames(data);
+                                updateTurn();
+                                updateMoves(data.move_history);
+                                updateCaptured(data.captured_pieces);
+                                renderClocks();
+                                startTimer();
+                                updateMaterialUI(board);
+                                
+                                // Scroll move history
+                                const movesListDiv = document.getElementById('movesList');
+                                if (movesListDiv) movesListDiv.scrollTop = movesListDiv.scrollHeight;
+
+                                let a11yMsg = '';
+                                if (data.move_history && data.move_history.length > 0) {
+                                    const lastMoveNotation = data.move_history[data.move_history.length - 1].notation;
+                                    const playedColor = turn === 'white' ? 'Black' : 'White';
+                                    a11yMsg = `${playedColor} played ${lastMoveNotation}. `;
+                                }
+
+                                const gameEnded = handleGameStatus(data.game_status, data.draw_reason);
+                                if (!gameEnded) {
+                                    if (data.game_status === 'check') {
+                                        applyCheckHighlight();
+                                        const checkMsg = turn === 'white' ? 'White is in check!' : 'Black is in check!';
+                                        showStatus(checkMsg, true);
+                                        a11yMsg += checkMsg;
+                                    } else {
+                                        highlightCheck();
+                                        showStatus('', false);
+                                    }
+                                    if (a11yMsg) announceMove(a11yMsg);
+                                }
+
+                                if (gameMode === 'ai' && turn !== playerColor && !gameOver) {
+                                    requestAIMove();
+                                }
+                            });
                     } else {
                         showStatus(data.message, true);
                         deselect();
@@ -868,40 +882,52 @@
                             playSound(data);
                             const mv = data.ai_move;
                             await animateMove(mv.from_row, mv.from_col, mv.to_row, mv.to_col);
+                            
+                            // Critical state updates
                             board = parseBoard(data.board);
                             turn = data.current_turn;
                             lastMove = { from: [mv.from_row, mv.from_col], to: [mv.to_row, mv.to_col] };
                             whiteTime = data.white_time;
                             blackTime = data.black_time;
-    
                             selected = null;
                             hints = [];
-                            updatePlayerNames(data);
-                            updateTurn();
-                            updateMoves(data.move_history);
-                            updateCaptured(data.captured_pieces);
-                            syncPieces();
-                            renderClocks();
-                            startTimer();
-                            updateMaterialUI(board);
-                        let a11yMsg = '';
-                        if (data.move_history && data.move_history.length > 0) {
-                            const lastMove = data.move_history[data.move_history.length - 1].notation;
-                            a11yMsg = `AI played ${lastMove}. `;
-                        }
 
-                        const gameEnded = handleGameStatus(data.game_status, data.draw_reason);
-                        if (!gameEnded) {
-                            if (data.game_status === 'check') {
-                                applyCheckHighlight();
-                                showStatus('You are in check!', true);
-                                a11yMsg += 'You are in check!';
-                            } else {
-                                highlightCheck();
-                                showStatus('Your turn.', false);
-                            }
-                            if (a11yMsg) announceMove(a11yMsg);
-                        }
+                            // Critical visual updates
+                            syncPieces();
+
+                            // Non-critical UI updates batched
+                            requestAnimationFrame(() => {
+                                updatePlayerNames(data);
+                                updateTurn();
+                                updateMoves(data.move_history);
+                                updateCaptured(data.captured_pieces);
+                                renderClocks();
+                                startTimer();
+                                updateMaterialUI(board);
+                                
+                                // Scroll move history
+                                const movesListDiv = document.getElementById('movesList');
+                                if (movesListDiv) movesListDiv.scrollTop = movesListDiv.scrollHeight;
+
+                                let a11yMsg = '';
+                                if (data.move_history && data.move_history.length > 0) {
+                                    const lastMoveNotation = data.move_history[data.move_history.length - 1].notation;
+                                    a11yMsg = `AI played ${lastMoveNotation}. `;
+                                }
+
+                                const gameEnded = handleGameStatus(data.game_status, data.draw_reason);
+                                if (!gameEnded) {
+                                    if (data.game_status === 'check') {
+                                        applyCheckHighlight();
+                                        showStatus('You are in check!', true);
+                                        a11yMsg += 'You are in check!';
+                                    } else {
+                                        highlightCheck();
+                                        showStatus('Your turn.', false);
+                                    }
+                                    if (a11yMsg) announceMove(a11yMsg);
+                                }
+                            });
                     } else {
                         showStatus(data.message, true);
                     }
@@ -1960,5 +1986,3 @@
         }
 
 })();
-
-
